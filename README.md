@@ -30,6 +30,17 @@ Validated the detection pipeline by capturing real-world telemetry during a syst
 * **Context:** Detected standard Debian package management traffic from local node `192.168.1.177` to `deb.debian.org`.
 * **Significance:** Confirms the engine is successfully parsing HTTP User-Agents and matching against the Emerging Threats (ET) policy ruleset.
 
+## 🔐 Access & Automation
+The lab utilizes an Nginx Reverse Proxy to provide a unified HTTPS gateway.
+
+* **Dashboard:** `https://<PI_IP>/` (Custom landing page)
+* **DNS Filtering:** `https://<PI_IP>/admin` (Proxied to Pi-hole v6 on Port 8080)
+* **Threat Alerts:** `https://<PI_IP>/events` (Proxied to EveBox on Port 5636)
+
+### ⚙️ Automation
+* **Signature Updates:** A root cron job executes `suricata-update` daily at 03:00 to maintain the engine's 48,000+ rule integrity.
+* **Service Recovery:** All security services (Nginx, Pi-hole, Suricata, EveBox) are managed via systemd to ensure persistence across reboots.
+
 ## ❄️ Hardware & Thermal Management
 To support continuous deep packet inspection, the Raspberry Pi 5 hardware has been optimized:
 * **Thermal Control:** Custom PWM fan curves configured via `config.txt`.
