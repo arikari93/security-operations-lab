@@ -7,18 +7,33 @@ env/
 venv/
 .pytest_cache/
 
-# --- CUSTOM LAB OVERRIDES ---
+# --- INFRASTRUCTURE & PKI ---
+# Ignore sensitive SSL/TLS material
+*.key
+*.crt
+*.pem
+*.csr
 
-# Ignore raw Suricata logs
+# Ignore actual configuration files containing sensitive hashes/PII
+pihole.toml
+setupVars.conf
+/etc/nginx/sites-available/default
+/etc/pihole/pihole.toml
+
+# --- LOGS & MONITORING ---
+# Ignore raw Suricata and Web server logs
 *.log
 eve.json
 /var/log/suricata/
+/var/log/nginx/
 !/var/log/suricata/suricata.yaml
 
 # Ignore large binary dumps
 *.pcap
 
-# Ignore local configuration backups and hardware-specific temp files
+# --- BACKUPS & ENVIRONMENT ---
+# Ignore automated Python backup directories
+pi_lab_backup_*
 config_backups/
 .DS_Store
 Thumbs.db
