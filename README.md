@@ -217,19 +217,19 @@ Beyond the 48,243 Emerging Threats Open signatures, this lab includes **custom-w
 
 ### Custom Ruleset Highlights
 
-**Rule 1: PowerShell-Based File Download Detection**
+**Rule 1: PowerShell-Based Executable Download Detection**
 ```suricata
 alert http any any -> any any (
     msg:"CUSTOM Suspicious PowerShell Download Activity"; 
     flow:established,to_server; 
     content:"powershell"; http_user_agent; 
-    content:"DownloadFile"; http_uri; 
+    content:".exe"; http_uri; 
     classtype:trojan-activity; 
     reference:url,attack.mitre.org/techniques/T1059/001;
-    sid:9000001; rev:1;
+    sid:9000001; rev:2;
 )
 ```
-**Detection Logic:** Identifies PowerShell web requests containing `DownloadFile` in the URI, indicative of fileless malware delivery or "living off the land" (LOTL) techniques.
+**Detection Logic:** Identifies PowerShell web requests attempting to download executable files (.exe in URI). This is a common pattern in fileless malware delivery where PowerShell's `Invoke-WebRequest` or `WebClient.DownloadFile()` methods are used to retrieve malicious payloads, indicative of "living off the land" (LOTL) techniques.
 
 **Rule 2: DNS Tunneling via Excessive Subdomain Length**
 ```suricata
@@ -533,12 +533,13 @@ In lab environments without proper DNS infrastructure, always use IP addresses i
 
 ## 📖 Documentation
 
-Comprehensive guides for setup, troubleshooting, and rule development:
+Comprehensive guides for setup, troubleshooting, rule development, and daily operations:
 
 - 📘 **[Setup Guide](docs/SETUP.md)** – Step-by-step installation and configuration
 - 🔧 **[Troubleshooting Guide](docs/TROUBLESHOOTING.md)** – Common issues and solutions
 - 🎯 **[Custom Detection Rules](docs/DETECTION_RULES.md)** – Rule syntax and logic explanations
 - 📊 **[Incident Analysis Report](docs/ANALYSIS_REPORT.md)** – Sample SOC analyst write-up
+- 🛡️ **[SOC Daily Operations](docs/SOC_DAILY_OPERATIONS.md)** – Attack simulation & validation playbook
 
 ---
 
@@ -562,7 +563,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Project Lead:** Ari Said  
 **Certifications:** ISC2 CC | CompTIA Security+ (April 2026)  
 **LinkedIn:** [Connect with me](https://www.linkedin.com/in/ari-said92)  
-**Portfolio:** [View other projects](https://github.com/arikari93)
+**GitHub:** [View other projects](https://github.com/arikari93)
 
 ---
 
