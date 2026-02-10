@@ -1,0 +1,249 @@
+<!-- =====================================================
+     Wazuh Agent Configuration - NIDS Sensor
+     ===================================================== 
+     Location: /var/ossec/etc/ossec.conf
+     Purpose: Forward Suricata alerts to Wazuh SIEM
+     Agent Name: nids-sensor-01
+     ===================================================== -->
+
+<ossec_config>
+  <!-- ================================================
+       Client Configuration (Connection to SIEM)
+       ================================================ -->
+  <client>
+    <server>
+      <!-- SIEM Manager IP Address -->
+      <!-- IMPORTANT: Use IP instead of hostname for reliability -->
+      <address>192.168.1.50</address>
+      <port>1514</port>
+      <protocol>tcp</protocol>
+    </server>
+    
+    <!-- Agent enrollment configuration -->
+    <config-profile>debian, debian12</config-profile>
+    <notify_time>10</notify_time>
+    <time-reconnect>60</time-reconnect>
+    <auto_restart>yes</auto_restart>
+    <crypto_method>aes</crypto_method>
+  </client>
+
+  <!-- ================================================
+       Client Buffer Configuration
+       ================================================ -->
+  <client_buffer>
+    <!-- Disable remote buffering -->
+    <disabled>no</disabled>
+    
+    <!-- Buffer size in events -->
+    <queue_size>5000</queue_size>
+    
+    <!-- Send events in batches -->
+    <events_per_second>500</events_per_second>
+  </client_buffer>
+
+  <!-- ================================================
+       Log Collection - Suricata Eve.json
+       ================================================ -->
+  <!-- CRITICAL: This is what sends Suricata alerts to SIEM -->
+  <localfile>
+    <log_format>json</log_format>
+    <location>/var/log/suricata/eve.json</location>
+    <label key="@source">suricata</label>
+  </localfile>
+
+  <!-- ================================================
+       Log Collection - Suricata Fast Log
+       ================================================ -->
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/suricata/fast.log</location>
+    <label key="@source">suricata-fast</label>
+  </localfile>
+
+  <!-- ================================================
+       Log Collection - System Authentication
+       ================================================ -->
+  <!-- Captures SSH brute force attempts -->
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/auth.log</location>
+  </localfile>
+
+  <!-- ================================================
+       Log Collection - System Logs
+       ================================================ -->
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/syslog</location>
+  </localfile>
+
+  <!-- ================================================
+       Log Collection - Pi-hole (Optional)
+       ================================================ -->
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/pihole.log</location>
+    <label key="@source">pihole</label>
+  </localfile>
+
+  <!-- ================================================
+       Log Collection - Nginx Access Logs
+       ================================================ -->
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/nginx/access.log</location>
+    <label key="@source">nginx-access</label>
+  </localfile>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/nginx/error.log</location>
+    <label key="@source">nginx-error</label>
+  </localfile>
+
+  <!-- ================================================
+       Rootcheck - System Integrity Monitoring
+       ================================================ -->
+  <rootcheck>
+    <disabled>no</disabled>
+    <check_files>yes</check_files>
+    <check_trojans>yes</check_trojans>
+    <check_dev>yes</check_dev>
+    <check_sys>yes</check_sys>
+    <check_pids>yes</check_pids>
+    <check_ports>yes</check_ports>
+    <check_if>yes</check_if>
+    
+    <!-- Scan frequency: every 12 hours -->
+    <frequency>43200</frequency>
+    
+    <!-- Ignore common false positives -->
+    <rootkit_files>/var/ossec/etc/shared/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>/var/ossec/etc/shared/rootkit_trojans.txt</rootkit_trojans>
+  </rootcheck>
+
+  <!-- ================================================
+       Security Configuration Assessment (SCA)
+       ================================================ -->
+  <sca>
+    <enabled>yes</enabled>
+    <scan_on_start>yes</scan_on_start>
+    <interval>12h</interval>
+    <skip_nfs>yes</skip_nfs>
+  </sca>
+
+  <!-- ================================================
+       File Integrity Monitoring (FIM)
+       ================================================ -->
+  <syscheck>
+    <disabled>no</disabled>
+    
+    <!-- Scan frequency: every 6 hours -->
+    <frequency>21600</frequency>
+    
+    <!-- Monitor critical system directories -->
+    <directories check_all="yes" realtime="yes">/etc</directories>
+    <directories check_all="yes" realtime="yes">/usr/bin</directories>
+    <directories check_all="yes" realtime="yes">/usr/sbin</directories>
+    <directories check_all="yes" realtime="yes">/var/ossec/etc</directories>
+    
+    <!-- Monitor Suricata rules -->
+    <directories check_all="yes" realtime="yes">/etc/suricata/rules</directories>
+    <directories check_all="yes" realtime="yes">/var/lib/suricata/rules</directories>
+    
+    <!-- Ignore common changing files -->
+    <ignore>/etc/mtab</ignore>
+    <ignore>/etc/hosts.deny</ignore>
+    <ignore>/etc/mail/statistics</ignore>
+    <ignore>/etc/random-seed</ignore>
+    <ignore>/etc/random.seed</ignore>
+    <ignore>/etc/adjtime</ignore>
+    <ignore>/etc/httpd/logs</ignore>
+    <ignore>/etc/utmpx</ignore>
+    <ignore>/etc/wtmpx</ignore>
+    <ignore>/etc/cups/certs</ignore>
+    <ignore>/etc/dumpdates</ignore>
+    <ignore>/etc/svc/volatile</ignore>
+    
+    <!-- File types to ignore -->
+    <ignore type="sregex">.log$|.swp$</ignore>
+    
+    <!-- Scan attributes -->
+    <scan_day>sunday</scan_day>
+    <scan_time>2am</scan_time>
+  </syscheck>
+
+  <!-- ================================================
+       Active Response (Disabled for Lab)
+       ================================================ -->
+  <!-- Disabled to prevent blocking during testing -->
+  <active-response>
+    <disabled>yes</disabled>
+  </active-response>
+
+  <!-- ================================================
+       Command Configuration
+       ================================================ -->
+  <command>
+    <name>disable-account</name>
+    <executable>disable-account</executable>
+    <timeout_allowed>yes</timeout_allowed>
+  </command>
+
+  <command>
+    <name>restart-wazuh</name>
+    <executable>restart-wazuh</executable>
+  </command>
+
+  <command>
+    <name>firewall-drop</name>
+    <executable>firewall-drop</executable>
+    <timeout_allowed>yes</timeout_allowed>
+  </command>
+
+  <!-- ================================================
+       Labels (Agent Metadata)
+       ================================================ -->
+  <labels>
+    <label key="aws.instance-id">nids-sensor-01</label>
+    <label key="network.segment">lab</label>
+    <label key="system.role">nids</label>
+    <label key="deployment">homelab</label>
+  </labels>
+
+  <!-- ================================================
+       Logging Configuration
+       ================================================ -->
+  <logging>
+    <log_format>plain</log_format>
+  </logging>
+
+</ossec_config>
+
+<!-- =====================================================
+     Configuration Notes
+     =====================================================
+     
+     Installation Steps:
+     1. Install Wazuh agent: apt install wazuh-agent
+     2. Replace default ossec.conf with this file
+     3. Update <address> to your Wazuh manager IP
+     4. Register agent with manager
+     5. Start: systemctl start wazuh-agent
+     
+     Verification:
+     - Check connection: grep "Connected to" /var/ossec/logs/ossec.log
+     - View stats: /var/ossec/bin/wazuh-control status
+     - Test config: /var/ossec/bin/wazuh-control -t
+     
+     Troubleshooting:
+     - Agent not connecting: Verify manager IP and firewall rules
+     - Logs not forwarding: Check file permissions on eve.json
+     - High CPU usage: Reduce FIM frequency or monitored directories
+     
+     Security Considerations:
+     - Agent uses AES encryption for communication
+     - File paths are sanitized (no real paths exposed)
+     - Active response disabled to prevent auto-blocking during testing
+     
+     ===================================================== -->
