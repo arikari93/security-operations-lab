@@ -1,0 +1,225 @@
+# =====================================================
+# Suricata Configuration - Key Customizations
+# =====================================================
+# This is a sanitized excerpt of the Suricata configuration
+# showing the critical modifications made for this lab.
+# 
+# Full config location: /etc/suricata/suricata.yaml
+# Suricata version: 6.0.10
+# =====================================================
+
+# Network Address Configuration
+# Changed from default to lab network range
+vars:
+  address-groups:
+    HOME_NET: "[192.168.1.0/24]"
+    EXTERNAL_NET: "!$HOME_NET"
+    
+    HTTP_SERVERS: "$HOME_NET"
+    SMTP_SERVERS: "$HOME_NET"
+    SQL_SERVERS: "$HOME_NET"
+    DNS_SERVERS: "$HOME_NET"
+    TELNET_SERVERS: "$HOME_NET"
+    AIM_SERVERS: "$EXTERNAL_NET"
+    DC_SERVERS: "$HOME_NET"
+    DNP3_SERVER: "$HOME_NET"
+    DNP3_CLIENT: "$HOME_NET"
+    MODBUS_CLIENT: "$HOME_NET"
+    MODBUS_SERVER: "$HOME_NET"
+    ENIP_CLIENT: "$HOME_NET"
+    ENIP_SERVER: "$HOME_NET"
+
+  port-groups:
+    HTTP_PORTS: "80"
+    SHELLCODE_PORTS: "!80"
+    ORACLE_PORTS: 1521
+    SSH_PORTS: 22
+    DNP3_PORTS: 20000
+    MODBUS_PORTS: 502
+    FILE_DATA_PORTS: "[$HTTP_PORTS,110,143]"
+    FTP_PORTS: 21
+    GENEVE_PORTS: 6081
+    VXLAN_PORTS: 4789
+    TEREDO_PORTS: 3544
+
+# =====================================================
+# AF-PACKET Configuration (Critical for Port Mirroring)
+# =====================================================
+# Modified to optimize for SPAN port traffic capture
+af-packet:
+  - interface: eth0
+    # Cluster settings for multi-threaded capture
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+    # Use mmap for better performance
+    use-mmap: yes
+    # Ring size (increased from default for better buffering)
+    ring-size: 2048
+    # Enable promiscuous mode for SPAN port
+    # This is CRITICAL for capturing mirrored traffic
+    promisc: yes
+
+# =====================================================
+# Rule Path Configuration (THE "Silent Engine" FIX)
+# =====================================================
+# This was the key fix for the signature ingestion issue
+# Original config pointed to /etc/suricata/rules/*.rules
+# but suricata-update writes to /var/lib/suricata/rules/
+default-rule-path: /var/lib/suricata/rules
+
+rule-files:
+  - suricata.rules                              # ET Open ruleset
+  - /etc/suricata/rules/custom/homelab.rules   # Custom rules
+
+# =====================================================
+# Logging Configuration
+# =====================================================
+outputs:
+  # JSON event log (for Wazuh/SIEM integration)
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      
+      # Community ID for flow correlation across tools
+      community-id: true
+      community-id-seed: 0
+      
+      types:
+        - alert:
+            # Metadata for detailed analysis
+            metadata: yes
+            tagged-packets: yes
+            xff:
+              enabled: yes
+              mode: extra-data
+              deployment: reverse
+              header: X-Forwarded-For
+        
+        - anomaly:
+            enabled: yes
+        
+        - http:
+            enabled: yes
+            extended: yes
+        
+        - dns:
+            enabled: yes
+            version: 2
+        
+        - tls:
+            enabled: yes
+            extended: yes
+        
+        - files:
+            enabled: yes
+            force-magic: no
+        
+        - smtp:
+            enabled: yes
+            extended: yes
+        
+        - ssh:
+            enabled: yes
+        
+        - flow:
+            enabled: yes
+
+  # Fast log for quick alert review
+  - fast:
+      enabled: yes
+      filename: fast.log
+      append: yes
+
+# =====================================================
+# Performance Tuning (Raspberry Pi Optimization)
+# =====================================================
+threading:
+  set-cpu-affinity: no
+  cpu-affinity:
+    - management-cpu-set:
+        cpu: [ 0 ]
+    - receive-cpu-set:
+        cpu: [ 0 ]
+    - worker-cpu-set:
+        cpu: [ "1-3" ]
+  
+  detect-thread-ratio: 1.0
+
+# Memory limits (adjusted for Pi's 8GB RAM)
+stream:
+  memcap: 128mb
+  checksum-validation: yes
+
+flow:
+  memcap: 128mb
+  hash-size: 65536
+  prealloc: 10000
+
+# =====================================================
+# Application Layer Protocol Detection
+# =====================================================
+app-layer:
+  protocols:
+    krb5:
+      enabled: yes
+    ikev2:
+      enabled: yes
+    tls:
+      enabled: yes
+      detection-ports:
+        dp: 443
+    dcerpc:
+      enabled: yes
+    ftp:
+      enabled: yes
+    rdp:
+      enabled: yes
+    ssh:
+      enabled: yes
+    smtp:
+      enabled: yes
+    dns:
+      tcp:
+        enabled: yes
+      udp:
+        enabled: yes
+    http:
+      enabled: yes
+      libhtp:
+        default-config:
+          personality: IDS
+          request-body-limit: 100kb
+          response-body-limit: 100kb
+    
+    # Disabled protocols to reduce CPU load
+    http2:
+      enabled: no
+    modbus:
+      enabled: no
+    dnp3:
+      enabled: no
+    enip:
+      enabled: no
+
+# =====================================================
+# Packet Capture Settings
+# =====================================================
+pcap-log:
+  enabled: no  # Disabled to save disk space on Pi
+  filename: log.pcap
+
+# =====================================================
+# End of Critical Configuration Sections
+# =====================================================
+# Full configuration file contains additional sections for:
+# - Advanced threading options
+# - Detailed protocol parsers
+# - Lua scripting support
+# - Statistical outputs
+# - Profiling and debugging
+# 
+# For complete config reference:
+# https://suricata.readthedocs.io/en/latest/configuration/suricata-yaml.html
+# =====================================================
