@@ -1,39 +1,120 @@
+# =====================================================
+# Raspberry Pi Security Sentinel - .gitignore
+# =====================================================
+
+# --- PYTHON ARTIFACTS ---
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# --- ENVIRONMENT & SECRETS ---
 .env
+.env.local
 .venv
 env/
 venv/
-.pytest_cache/
+ENV/
+env.bak/
+venv.bak/
 
-# --- INFRASTRUCTURE & PKI ---
-# Ignore sensitive SSL/TLS material
+# --- SENSITIVE CRYPTOGRAPHIC MATERIAL ---
+# SSL/TLS certificates and keys
 *.key
 *.crt
 *.pem
 *.csr
+*.p12
+*.pfx
 
-# Ignore actual configuration files containing sensitive hashes/PII
+# SSH keys (if accidentally placed in repo)
+id_rsa
+id_rsa.pub
+*.pub
+
+# --- SENSITIVE CONFIGURATION FILES ---
+# Pi-hole configs with sensitive data
 pihole.toml
 setupVars.conf
-/etc/nginx/sites-available/default
-/etc/pihole/pihole.toml
+custom.list
 
-# --- LOGS & MONITORING ---
-# Ignore raw Suricata and Web server logs
+# Wazuh agent keys (if present)
+client.keys
+local_internal_options.conf
+
+# Nginx configs with sensitive data (if any)
+# Note: Your sanitized configs are SAFE to commit
+# nginx.conf  # Commented out - sanitized version is OK
+
+# --- LOGS & RAW DATA ---
+# Exclude actual operational logs (contain real IPs)
 *.log
+!example-*.log          # Allow example logs with sanitized data
 eve.json
-/var/log/suricata/
-/var/log/nginx/
-!/var/log/suricata/suricata.yaml
+fast.log
+stats.log
+suricata.log
 
-# Ignore large binary dumps
+# Packet captures (large binary files)
 *.pcap
+*.pcapng
+*.cap
 
-# --- BACKUPS & ENVIRONMENT ---
-# Ignore automated Python backup directories
+# --- BACKUPS & TEMPORARY FILES ---
+# Automated backups
 pi_lab_backup_*
 config_backups/
+backup_*/
+*.backup
+*.bak
+*.old
+*.orig
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# --- SYSTEM & IDE FILES ---
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+.directory
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- WAZUH SPECIFIC ---
+# Exclude agent runtime data
+.agent_info
+ossec.log
+alerts.json
+
+# --- ALLOW SANITIZED EXAMPLES ---
+# Explicitly allow sanitized example files
+!examples/
+!configs/
+!docs/
+
+# =====================================================
+# NOTE: This .gitignore protects sensitive data while
+# allowing sanitized configs and documentation to be
+# committed safely to the public repository.
+# =====================================================
