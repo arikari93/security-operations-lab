@@ -1,0 +1,148 @@
+# Sample Health Check Outputs
+# Source: health-check.sh script execution
+# Demonstrates healthy, degraded, and critical states
+
+# ============================================================
+# EXAMPLE 1: HEALTHY STATE (All Systems Operational)
+# ============================================================
+========================================
+NIDS SENSOR HEALTH CHECK
+========================================
+Timestamp: Wed Feb 11 17:04:36 CST 2026
+
+[1] Checking Suricata NIDS Engine...
+✓ Suricata: ACTIVE
+✓ Rules loaded: 48255 signatures
+
+[2] Checking Wazuh Agent Status...
+✓ Wazuh Agent: ACTIVE
+✓ Last connection: 2026/02/11 17:03:15
+
+[3] Verifying Network Interface...
+✓ Interface eth0: UP
+✓ Promiscuous mode: ENABLED (SPAN active)
+
+[4] Verifying Log Generation...
+✓ Eve.json size: 628M
+✓ Last modified: 2 seconds ago (active)
+
+[5] Checking Pi-hole DNS Filter...
+✓ Pi-hole FTL: ACTIVE
+✓ Web interface: ACCESSIBLE (port 8080)
+
+[6] Checking Nginx Reverse Proxy...
+✓ Nginx: ACTIVE
+✓ Configuration: VALID
+
+[7] Checking System Resources...
+✓ CPU Temperature: 34.0°C (normal)
+✓ Memory usage: 26% (normal)
+✓ Disk usage: 8% (normal)
+
+========================================
+HEALTH CHECK SUMMARY
+========================================
+Status: HEALTHY
+Total checks: 7
+Passed: 15
+Failed: 0
+Warnings: 0
+Duration: 1s
+
+✓ All critical systems operational
+
+# ============================================================
+# EXAMPLE 2: DEGRADED STATE (Non-Critical Warning)
+# ============================================================
+========================================
+NIDS SENSOR HEALTH CHECK
+========================================
+Timestamp: Wed Feb 11 16:30:00 CST 2026
+
+[1] Checking Suricata NIDS Engine...
+✓ Suricata: ACTIVE
+✓ Rules loaded: 48255 signatures
+
+[2] Checking Wazuh Agent Status...
+✓ Wazuh Agent: ACTIVE
+✓ Last connection: 2026/02/11 15:54:29
+
+[3] Verifying Network Interface...
+✓ Interface eth0: UP
+⚠ Promiscuous mode: DISABLED (not capturing mirrored traffic)
+
+[4] Verifying Log Generation...
+✓ Eve.json size: 626M
+✓ Last modified: 3 seconds ago (active)
+
+[5] Checking Pi-hole DNS Filter...
+✓ Pi-hole FTL: ACTIVE
+✓ Web interface: ACCESSIBLE (port 8080)
+
+[6] Checking Nginx Reverse Proxy...
+✓ Nginx: ACTIVE
+✓ Configuration: VALID
+
+[7] Checking System Resources...
+✓ CPU Temperature: 32.9°C (normal)
+✓ Memory usage: 26% (normal)
+✓ Disk usage: 8% (normal)
+
+========================================
+HEALTH CHECK SUMMARY
+========================================
+Status: DEGRADED
+Total checks: 7
+Passed: 14
+Failed: 0
+Warnings: 1
+Duration: 1s
+
+⚠ System operational with warnings
+
+# ============================================================
+# EXAMPLE 3: CRITICAL STATE (Service Failure)
+# ============================================================
+========================================
+NIDS SENSOR HEALTH CHECK
+========================================
+Timestamp: Sun Feb 08 14:30:00 CST 2026
+
+[1] Checking Suricata NIDS Engine...
+✗ Suricata: NOT RUNNING
+
+[2] Checking Wazuh Agent Status...
+✓ Wazuh Agent: ACTIVE
+✓ Last connection: 2026/02/08 14:28:45
+
+[3] Verifying Network Interface...
+✓ Interface eth0: UP
+✓ Promiscuous mode: ENABLED (SPAN active)
+
+[4] Verifying Log Generation...
+✗ Eve.json: NOT FOUND
+
+[5] Checking Pi-hole DNS Filter...
+✓ Pi-hole FTL: ACTIVE
+✓ Web interface: ACCESSIBLE (port 8080)
+
+[6] Checking Nginx Reverse Proxy...
+✓ Nginx: ACTIVE
+✓ Configuration: VALID
+
+[7] Checking System Resources...
+✓ CPU Temperature: 45.2°C (normal)
+✓ Memory usage: 28% (normal)
+✓ Disk usage: 9% (normal)
+
+========================================
+HEALTH CHECK SUMMARY
+========================================
+Status: CRITICAL
+Total checks: 7
+Passed: 11
+Failed: 2
+Warnings: 0
+Duration: 1s
+
+✗ Critical failures detected

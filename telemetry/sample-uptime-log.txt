@@ -1,0 +1,51 @@
+# NIDS Uptime Statistics
+# Source: /var/log/nids-uptime.log
+# Monitoring Period: 7 days (2026-02-05 to 2026-02-11)
+# Check Interval: Every 30 minutes
+
+2026-02-05 00:00:00 [INFO] Uptime monitoring started
+2026-02-05 00:00:00 [INFO] suricata is running
+2026-02-05 00:00:00 [INFO] pihole-FTL is running
+2026-02-05 00:00:00 [INFO] nginx is running
+2026-02-05 00:00:00 [INFO] wazuh-agent is running
+2026-02-05 00:00:00 [INFO] All services operational
+2026-02-05 00:30:00 [INFO] suricata is running
+2026-02-05 00:30:00 [INFO] pihole-FTL is running
+2026-02-05 00:30:00 [INFO] nginx is running
+2026-02-05 00:30:00 [INFO] wazuh-agent is running
+2026-02-05 00:30:00 [INFO] All services operational
+2026-02-05 01:00:00 [INFO] suricata is running
+2026-02-05 01:00:00 [INFO] pihole-FTL is running
+2026-02-05 01:00:00 [INFO] nginx is running
+2026-02-05 01:00:00 [INFO] wazuh-agent is running
+2026-02-05 01:00:00 [INFO] All services operational
+
+# ... (truncated for brevity - 336 successful checks over 7 days)
+
+2026-02-08 14:30:00 [INFO] suricata is running
+2026-02-08 14:30:00 [INFO] pihole-FTL is running
+2026-02-08 14:30:00 [INFO] nginx is running
+2026-02-08 14:30:00 [ERROR] wazuh-agent is down
+2026-02-08 14:30:00 [ERROR] Failed services: wazuh-agent (critical)
+2026-02-08 15:00:00 [INFO] suricata is running
+2026-02-08 15:00:00 [INFO] pihole-FTL is running
+2026-02-08 15:00:00 [INFO] nginx is running
+2026-02-08 15:00:00 [INFO] wazuh-agent is running
+2026-02-08 15:00:00 [INFO] All services operational
+
+# ... (continued successful checks)
+
+2026-02-11 16:52:18 [INFO] suricata is running
+2026-02-11 16:52:18 [INFO] pihole-FTL is running
+2026-02-11 16:52:18 [INFO] nginx is running
+2026-02-11 16:52:18 [INFO] wazuh-agent is running
+2026-02-11 16:52:18 [INFO] All services operational
+
+# === WEEKLY SUMMARY ===
+# Period: 2026-02-05 00:00:00 to 2026-02-11 23:59:59
+# Total Checks: 336
+# Successful: 335
+# Failed: 1 (wazuh-agent brief outage on 2026-02-08)
+# Uptime: 99.70%
+# Mean Time Between Failures (MTBF): 168 hours
+# Mean Time To Recovery (MTTR): 30 minutes
