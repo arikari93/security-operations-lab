@@ -112,16 +112,16 @@ calculate_uptime() {
         return
     fi
     
-    local total_checks=$(grep -c "INFO.*All services operational" "$LOG_FILE" || echo 0)
-    local failed_checks=$(grep -c "ERROR.*Failed services" "$LOG_FILE" || echo 0)
-    local total=$((total_checks + failed_checks))
+    local total_checks=$(grep -c "INFO.*All services operational" "$LOG_FILE" 2>/dev/null | tr -d "\n" || echo 0)
+    local failed_checks=$(grep -c "ERROR.*Failed services" "$LOG_FILE" 2>/dev/null | tr -d "\n" || echo 0)
+    local total=$((${total_checks:-0} + ${failed_checks:-0}))
     
     if [[ $total -eq 0 ]]; then
         echo "No checks recorded yet"
         return
     fi
     
-    local uptime_pct=$(echo "scale=2; ($total_checks / $total) * 100" | bc)
+    local uptime_pct=$(awk "BEGIN {printf \"%.2f\", ($total_checks / $total) * 100}")
     
     echo "=== UPTIME STATISTICS ==="
     echo "Total checks: $total"
